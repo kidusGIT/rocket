@@ -30,7 +30,7 @@ import {
   TargetElement,
 } from "../flow/Flowable";
 
-export type AnimationCallback = (...args: any[]) => void;
+export type AnimationCallback = (arg?: Flowable) => void;
 
 export type JSAnimationProps = {
   x?: number | string;
@@ -143,7 +143,7 @@ export class JSAnimation extends Flowable {
     const isInTimeFrame = t >= this._startTime && t <= this._endTime;
 
     if (!this._animating && isInTimeFrame) {
-      this._onStart(...this._onStart.arguments);
+      this._onStart(this);
       this.start();
       this._animating = true;
     }
@@ -167,7 +167,7 @@ export class JSAnimation extends Flowable {
 
     if (this._paused) {
       Container.cancelAnimation(this._parent);
-      this._onPause(...this._onPause.arguments);
+      this._onPause(this);
     }
 
     const isCompleted =
@@ -178,7 +178,7 @@ export class JSAnimation extends Flowable {
 
     if (isCompleted) {
       this.reset();
-      this._onFinish(...this._onFinish.arguments);
+      this._onFinish(this);
       if (this._parent && isInstance(this._parent, Container)) {
         discard(this._parent, this);
       }
@@ -227,7 +227,7 @@ export class JSAnimation extends Flowable {
     }
 
     if (prevIterationCount !== iterationCount) {
-      this._onLoop(...this._onLoop.arguments);
+      this._onLoop(this);
     }
 
     this._previousIterationCount = iterationCount;

@@ -1,5 +1,6 @@
 import { Container, getContainer } from "../container/container";
 import {
+  clamp,
   hold,
   isBoolean,
   isInstance,
@@ -107,6 +108,47 @@ export abstract class Flowable {
 
   reset() {
     this._animating = false;
+  }
+
+  pause() {
+    if (!this._paused) {
+      this._paused = true;
+    }
+    return this;
+  }
+
+  play(play = true) {
+    this._isReverse = !play;
+    const parent = getContainer();
+
+    if (
+      (this._paused || isUnd(this._parent)) &&
+      this._parent instanceof Container
+    ) {
+      this._paused = false;
+      if (isUnd(this._parent)) {
+        this._parent = parent;
+        hold(parent, this);
+      }
+      Container.startAnimation(this._parent);
+    }
+
+    return this;
+  }
+
+  reverse() {
+    return this.play(false);
+  }
+
+  resume() {
+    return this.play(!this._isReverse);
+  }
+
+  seek(number: number) {
+    const seek = clamp(number, this._duration, 0);
+    this.render(seek, true);
+
+    return this._paused ? this : this.resume();
   }
 
   abstract render(t: number, isSeek?: boolean, forceAnimate?: boolean): void;

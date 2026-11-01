@@ -1,4 +1,5 @@
-import { Flowable, Parent } from "../flow/Flowable";
+import { Flowable, Parent, TargetElement } from "../flow/Flowable";
+import { RocketTarget } from "./transforms";
 
 export const isUnd = (v: any) => typeof v === "undefined" || v === null;
 export const isString = (v: any) => typeof v === "string";
@@ -28,6 +29,76 @@ export const atan2 = (y: number, x: number) => Math.atan2(y, x);
 export const sqrt = (n: number) => Math.sqrt(n);
 export const round = (v: number) => Math.round(v);
 export const normalize = (p: number, t: number) => clamp(p / t, 1, 0);
+export const invert = (isInvert: boolean, progress: number, factor = 1) =>
+  isInvert ? factor - progress : progress;
+
+export const minNumber = -10e10;
+export const maxNumber = 10e10;
+
+export function processElapsedProgress(
+  animation: Flowable,
+  reversing: boolean,
+) {
+  const elapsedTime = (animation._prevElapsedTime = calculateElapsedTime(
+    animation._prevElapsedTime,
+    animation._time,
+    animation._duration,
+    reversing,
+  ));
+
+  return elapsedTime;
+}
+
+export function processProgress(
+  time: number,
+  duration: number,
+  delay: number,
+  reversing: boolean,
+) {
+  if (duration === 0) return 0;
+
+  if (time >= delay || reversing) {
+    duration = duration - delay;
+
+    const pr = clamp((time - delay) / duration, 1, 0);
+    return pr;
+  }
+
+  return -1;
+}
+
+export function processElapsedTime(
+  prev: number,
+  current: number,
+  animation: Flowable,
+) {
+  if (
+    (animation._parent &&
+      animation._parent instanceof Flowable &&
+      animation._parent._isReverse) ||
+    animation._isReverse
+  ) {
+    if (animation._prevElapsedTime === 0) {
+      return (animation._prevElapsedTime += animation._duration);
+    }
+    return (animation._prevElapsedTime -= current - prev);
+  }
+
+  return (animation._prevElapsedTime += current - prev);
+}
+
+export function calculateElapsedTime(
+  elapsed: number,
+  factor: number,
+  duration: number,
+  reversing: boolean,
+) {
+  if (reversing) {
+    return clamp(elapsed - factor, duration, 0);
+  }
+
+  return clamp(elapsed + factor, duration, 0);
+}
 
 export function hold(parent: Parent, child: Flowable) {
   let head = parent._head,
@@ -76,4 +147,171 @@ export function discard(parent: Parent, child: Flowable) {
   }
   child._parent = none;
   return parent;
+}
+
+export function extractUnit(value: string | number): {
+  value: number | null;
+  unit: string | null;
+} {
+  if (isNumber(value)) {
+    return {
+      value: value as number,
+      unit: "px",
+    };
+  }
+
+  const regex = /^(?<value>-?\d*\.?\d+)\s*(?<unit>[a-zA-Z%]*)$/;
+
+  const match = value.trim().match(regex);
+
+  if (match) {
+    const { value, unit } = match.groups as any;
+    return {
+      value: parseFloat(value),
+      unit: unit || null,
+    };
+  }
+
+  return { value: null, unit: null };
+}
+
+export function convertCSSUnit(
+  v: string,
+  targetUnit: string,
+  rootFontSize = 16,
+): number | string {
+  if (targetUnit === "") {
+    return parseFloat(v);
+  }
+
+  const match = extractUnit(v);
+  if (isUnd(match.value)) return "Invalid Input";
+
+  let value = match.value || 0;
+  if (match.unit == null) {
+    return value;
+  }
+
+  const unit = match.unit.toLowerCase();
+
+  if (unit === targetUnit) return value;
+
+  let pxValue;
+  switch (unit) {
+    case "px":
+      pxValue = value;
+      break;
+    case "rem":
+      pxValue = value * rootFontSize;
+      break;
+    case "em":
+      pxValue = value * rootFontSize;
+      break;
+    case "in":
+      pxValue = value * 96;
+      break;
+    case "cm":
+      pxValue = value * 37.8;
+      break;
+    case "mm":
+      pxValue = value * 3.78;
+      break;
+    case "pt":
+      pxValue = value * 1.33;
+      break;
+    case "vh":
+      pxValue = value * (window.innerHeight / 100);
+      break;
+    case "vw":
+      pxValue = value * (window.innerWidth / 100);
+      break;
+    default:
+      return "Unsupported Unit";
+  }
+
+  let result;
+  switch (targetUnit) {
+    case "px":
+      result = pxValue;
+      break;
+    case "rem":
+      result = pxValue / rootFontSize;
+      break;
+    case "em":
+      result = pxValue / rootFontSize;
+      break;
+    case "in":
+      result = pxValue / 96;
+      break;
+    case "cm":
+      result = pxValue / 37.8;
+      break;
+    case "mm":
+      result = pxValue / 3.78;
+      break;
+    case "pt":
+      result = pxValue / 1.33;
+      break;
+    case "vh":
+      result = (pxValue / window.innerHeight) * 100;
+      break;
+    case "vw":
+      result = (pxValue / window.innerWidth) * 100;
+      break;
+    default:
+      return "Unsupported Target Unit";
+  }
+
+  return parseFloat(result.toFixed(3));
+}
+
+export function getTargets(target: TargetElement): Array<RocketTarget> {
+  if (isArray(target)) {
+    return target;
+  } else if (isObj(target)) {
+    return [target as RocketTarget];
+  } else if (isString(target)) {
+    const elements = document.querySelectorAll(target);
+    const arr: RocketTarget[] = [];
+
+    elements.forEach((el) => {
+      const customEl = el as any;
+
+      if (!isKey("rocketCache", customEl)) {
+        customEl.rocketCache = {};
+      }
+      arr.push(customEl as RocketTarget);
+    });
+
+    return arr;
+  }
+
+  return [];
+}
+
+export function setTargetCache(
+  key: string,
+  target: RocketTarget,
+  state: number,
+  to: number,
+  unit: string,
+  from: number,
+  originalState: number,
+) {
+  const cache =
+    (isKey("rocketCache", target)
+      ? target["rocketCache"]
+      : (target["rocketCache"] = {})) || {};
+
+  if (!isKey(key, cache)) {
+    cache[key] = {
+      to,
+      currentState: state,
+      unit,
+      from,
+      originalState,
+    };
+  } else {
+    cache[key]["currentState"] = state;
+  }
 }

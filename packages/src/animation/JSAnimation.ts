@@ -11,6 +11,8 @@ import {
   setTargetCache,
   isNumber,
   isKey,
+  noop,
+  isInstance,
 } from "../core/helpers";
 import type { RocketTarget } from "../core/transforms";
 import {
@@ -28,6 +30,8 @@ import {
   TargetElement,
 } from "../flow/Flowable";
 
+export type AnimationCallback = (...args: any[]) => void;
+
 export type JSAnimationProps = {
   x?: number | string;
   y?: number | string;
@@ -35,6 +39,10 @@ export type JSAnimationProps = {
   scale?: number;
   scaleX?: number;
   scaleY?: number;
+  onStart?: AnimationCallback;
+  onFinish?: AnimationCallback;
+  onLoop?: AnimationCallback;
+  onPause?: AnimationCallback;
 } & Record<string, any>;
 
 export type keyframeProps = {
@@ -58,14 +66,36 @@ export class JSAnimation extends Flowable {
   _props: JSAnimationProps;
   _properties: TransformPropertyRecord = {};
 
+  _onStart: AnimationCallback;
+  _onFinish: AnimationCallback;
+  _onLoop: AnimationCallback;
+  _onPause: AnimationCallback;
+
   constructor(
     target: TargetElement,
     params: JSAnimationParameter,
     parent: Parent,
   ) {
-    let { duration, delay, from, play, loop, alternate, ...objs } = params;
+    let {
+      duration,
+      delay,
+      from,
+      play,
+      loop,
+      alternate,
+      onFinish,
+      onLoop,
+      onPause,
+      onStart,
+      ...objs
+    } = params;
 
     super(parent, { duration, delay, from, play, loop, alternate });
+
+    this._onFinish = onFinish || noop;
+    this._onLoop = onLoop || noop;
+    this._onPause = onPause || noop;
+    this._onStart = onStart || noop;
 
     this.setDuration(this._duration);
 
@@ -76,7 +106,7 @@ export class JSAnimation extends Flowable {
     this._props = objs;
   }
 
-  startTween() {
+  start() {
     if (this._init) {
       return;
     }
@@ -113,8 +143,8 @@ export class JSAnimation extends Flowable {
     const isInTimeFrame = t >= this._startTime && t <= this._endTime;
 
     if (!this._animating && isInTimeFrame) {
-      console.log("Tween start ", this._targets, " at time ", time);
-      this.startTween();
+      this._onStart(...this._onStart.arguments);
+      this.start();
       this._animating = true;
     }
 
@@ -137,6 +167,7 @@ export class JSAnimation extends Flowable {
 
     if (this._paused) {
       Container.cancelAnimation(this._parent);
+      this._onPause(...this._onPause.arguments);
     }
 
     const isCompleted =
@@ -147,8 +178,8 @@ export class JSAnimation extends Flowable {
 
     if (isCompleted) {
       this.reset();
-
-      if (this._parent instanceof Container) {
+      this._onFinish(...this._onFinish.arguments);
+      if (this._parent && isInstance(this._parent, Container)) {
         discard(this._parent, this);
       }
     }
@@ -196,12 +227,7 @@ export class JSAnimation extends Flowable {
     }
 
     if (prevIterationCount !== iterationCount) {
-      console.log(
-        "iteration change ",
-        prevIterationCount,
-        " -> ",
-        iterationCount,
-      );
+      this._onLoop(...this._onLoop.arguments);
     }
 
     this._previousIterationCount = iterationCount;

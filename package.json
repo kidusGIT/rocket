@@ -13,6 +13,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "private": "true",
   "type": "module",
   "bugs": {
     "url": "https://github.com/kidusGIT/rocket/issues"

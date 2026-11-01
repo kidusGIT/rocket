@@ -1,4 +1,4 @@
-import { animate } from "../../animation";
+import { animate } from "../../packages/src/index";
 
 const pause = document.getElementById("btn-pause");
 const reverse = document.getElementById("btn-reverse");

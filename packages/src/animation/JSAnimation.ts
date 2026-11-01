@@ -56,7 +56,7 @@ export type JSAnimationParameter = FlowableParameter & JSAnimationProps;
 export class JSAnimation extends Flowable {
   _progress = 0;
   _delay = 0;
-  _targets: RocketTarget[];
+  _targets: Array<RocketTarget>;
   _init = false;
   _overwrite = true;
   _animate = false;

@@ -249,7 +249,6 @@ export class JSAnimation extends Flowable {
     const t = this._ease(
       this._from ? 1 - progressNormalized : progressNormalized,
     );
-    console.log("t ", t);
     this._targets.forEach((target) => {
       const cache = target.rocketCache || {};
 

@@ -27,6 +27,7 @@ t = animate(".ball", {
   x: 535,
   // rotate: 180,
   scale: 0.4,
+  delay: 1000,
   // opacity: 0.5,
   // alternate: true,
   // loop: 1,

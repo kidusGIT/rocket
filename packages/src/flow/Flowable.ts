@@ -48,7 +48,7 @@ export abstract class Flowable {
   _head?: Flowable;
   _tail?: Flowable;
 
-  _ease = (t: number, p = 2) => 1 - t ** p;
+  _ease = (t: number, p = 2) => t ** p;
 
   constructor(parent: Parent, param: FlowableParameter) {
     this._parent = parent;
@@ -121,16 +121,14 @@ export abstract class Flowable {
     this._isReverse = !play;
     const parent = getContainer();
 
-    if (
-      (this._paused || isUnd(this._parent)) &&
-      this._parent instanceof Container
-    ) {
+    if (this._paused || isUnd(this._parent)) {
       this._paused = false;
       if (isUnd(this._parent)) {
         this._parent = parent;
         hold(parent, this);
       }
-      Container.startAnimation(this._parent);
+      this._parent instanceof Container &&
+        Container.startAnimation(this._parent);
     }
 
     return this;

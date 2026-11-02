@@ -1,12 +1,10 @@
-import { animate } from "../../packages/src/index";
+import { animate } from "../../../packages/src";
 
 const pause = document.getElementById("btn-pause");
 const reverse = document.getElementById("btn-reverse");
 const play = document.getElementById("btn-play");
 const resume = document.getElementById("btn-resume");
 const seek = document.getElementById("btn-seek");
-
-animate.from(".ball", {});
 
 let t;
 // t = animate(".green", {
@@ -27,20 +25,12 @@ let t;
 
 t = animate(".ball", {
   x: 535,
-  rotate: 180,
-  // scale: 0.4,
-  // from: true,
-
-  stagger: {
-    each: 500,
-    from: 4,
-
-    // loop: 2,
-    // alternate: true,
-  },
+  // rotate: 180,
+  scale: 0.4,
+  // opacity: 0.5,
   // alternate: true,
   // loop: 1,
-  duration: 1000,
+  duration: 1500,
 });
 
 // t = animate(".green", {
@@ -107,57 +97,23 @@ t = animate(".ball", {
 //   duration: 4000,
 // });
 
-pause.onclick = () => {
+pause!.onclick = () => {
   t.pause();
 };
 
-reverse.onclick = () => {
+reverse!.onclick = () => {
   console.log("----------------------------");
   t.reverse();
 };
 
-play.onclick = () => {
+play!.onclick = () => {
   t.play();
 };
 
-resume.onclick = () => {
+resume!.onclick = () => {
   t.resume();
 };
 
-seek.onclick = () => {
-  t.seek(1000);
+seek!.onclick = () => {
+  t.seek(500);
 };
-
-// start.onclick = () => {
-//   // t.animate(".yellow", "left", { duration: 1000, to: 420 });
-// };
-
-/**
- * Splits a cubic Bézier curve at parameter t (0 to 1).
- * Points are objects: { x: number, y: number }
- */
-function splitCubicBezier(p0, p1, p2, p3, t = 0.5) {
-  // First level
-  const a = lerpPoint(p0, p1, t);
-  const b = lerpPoint(p1, p2, t);
-  const c = lerpPoint(p2, p3, t);
-
-  // Second level
-  const d = lerpPoint(a, b, t);
-  const e = lerpPoint(b, c, t);
-
-  // Split point on the curve
-  const f = lerpPoint(d, e, t);
-
-  return {
-    left: [p0, a, d, f], // First segment:  C a.x a.y, d.x d.y, f.x f.y
-    right: [f, e, c, p3], // Second segment: C e.x e.y, c.x c.y, p3.x p3.y
-  };
-}
-
-function lerpPoint(pA, pB, t) {
-  return {
-    x: pA.x + (pB.x - pA.x) * t,
-    y: pA.y + (pB.y - pA.y) * t,
-  };
-}

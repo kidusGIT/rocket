@@ -101,6 +101,34 @@ export abstract class Flowable {
       : this._loop === true;
   }
 
+  get startTime() {
+    return this._startTime;
+  }
+
+  get parentTime() {
+    return this._parentTime;
+  }
+
+  get startAt() {
+    return this._startAt;
+  }
+
+  get time() {
+    return this._time;
+  }
+
+  set parentTime(time: number) {
+    this._parentTime = time;
+  }
+
+  set startAt(time: number) {
+    this._startAt = time;
+  }
+
+  set time(time: number) {
+    this._time = time;
+  }
+
   setDuration(duration: number, forceDuration = false) {
     const maxDuration = forceDuration
       ? duration

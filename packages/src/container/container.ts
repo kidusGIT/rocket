@@ -39,23 +39,23 @@ export class Container {
     }
   }
 
-  update(current: Flowable, factor: number) {
-    let reverse = current._isReverse;
-    const duration = current._duration;
-    const currentTime = current._time;
+  update(flow: Flowable, factor: number) {
+    let reverse = flow._isReverse;
+    const duration = flow._duration,
+      currentTime = flow._time;
     factor = reverse ? -factor : factor;
 
-    if (current._parentTime >= current._startTime) {
-      current._startAt = current._startTime;
+    if (flow.parentTime >= flow.startTime) {
+      flow.startAt = flow.startTime;
       let time = clamp(currentTime + factor, duration, 0);
-      current.render(round(time));
-      current._time = time;
+      flow.render(round(time));
+      flow.time = time;
     }
 
-    current._parentTime += factor;
-    if (current._parentTime < current._startAt) {
-      current._parentTime = current._startAt;
-      discard(this, current);
+    flow.parentTime = flow.parentTime + factor;
+    if (flow.parentTime < flow.startAt) {
+      flow.parentTime = flow.startAt;
+      discard(this, flow);
     }
   }
 

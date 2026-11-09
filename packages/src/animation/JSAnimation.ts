@@ -145,8 +145,7 @@ export class JSAnimation extends Flowable {
     }
 
     const inTimeframe = time >= 0 && time <= duration;
-    const shouldRender =
-      (this._animating || isSeek || inTimeframe) && prevTime !== time;
+    const shouldRender = (this._animating || inTimeframe) && prevTime !== time;
 
     if (shouldRender || forceAnimate || isSeek) {
       const iterationTime = this._calculateIterationTime(time);

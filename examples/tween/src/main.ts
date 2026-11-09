@@ -1,4 +1,4 @@
-import { animate } from "../../../packages/src";
+import { animate } from "rocket";
 
 const pause = document.getElementById("btn-pause");
 const reverse = document.getElementById("btn-reverse");
@@ -24,12 +24,14 @@ let t;
 // STAGGER AND KEYFRAMES
 
 t = animate(".ball", {
-  x: 535,
-  // rotate: 180,
-  scale: 0.4,
+  // x: 535,
+  // // rotate: 180,
+  // scale: 0.4,
+  // width: 200,
+  height: 100,
   alternate: true,
-  // loopDelay: 500,
-  // loop: 2,
+  loopDelay: 500,
+  loop: 1,
   duration: 1500,
 
   onStart: () => {

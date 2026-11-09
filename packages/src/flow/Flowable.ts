@@ -8,17 +8,25 @@ import {
   isUnd,
   max,
   maxNumber,
+  min,
+  noop,
 } from "../core/helpers";
 
+export type AnimationCallback = (arg?: Flowable) => void;
 export type Parent = Flowable | Container;
 export type TargetElement = string | HTMLElement;
 export type FlowableParameter = {
   duration?: number;
   delay?: number;
+  loopDelay?: number;
   loop?: number | boolean;
   from?: boolean;
   play?: boolean;
   alternate?: boolean;
+  onFinish?: AnimationCallback;
+  onLoop?: AnimationCallback;
+  onPause?: AnimationCallback;
+  onStart?: AnimationCallback;
 };
 
 export abstract class Flowable {
@@ -34,6 +42,10 @@ export abstract class Flowable {
   _startTime = 0;
   _endTime = 0;
   _prevTime = 0;
+  _loopDelay = 0;
+  _parentTime = 0;
+  _startAt = 0;
+  _iterationTime = 0;
 
   _animating = false;
   _paused = false;
@@ -48,18 +60,45 @@ export abstract class Flowable {
   _head?: Flowable;
   _tail?: Flowable;
 
+  _onStart: AnimationCallback;
+  _onFinish: AnimationCallback;
+  _onLoop: AnimationCallback;
+  _onPause: AnimationCallback;
+
   _ease = (t: number, p = 2) => t ** p;
 
   constructor(parent: Parent, param: FlowableParameter) {
     this._parent = parent;
-    let { duration, delay, loop, alternate } = param;
+    let {
+      duration,
+      delay,
+      loop,
+      alternate,
+      loopDelay,
+      onFinish,
+      onLoop,
+      onPause,
+      onStart,
+    } = param;
 
     this._loop = loop || 0;
     this._alternate = isBoolean(alternate) && alternate === true;
 
     this._delay = delay || 0;
+    this._loopDelay = this.hasLoop ? loopDelay || 0 : 0;
     this._duration = duration ? duration : 500;
     this._iterationDuration = this._duration;
+
+    this._onFinish = onFinish || noop;
+    this._onLoop = onLoop || noop;
+    this._onPause = onPause || noop;
+    this._onStart = onStart || noop;
+  }
+
+  get hasLoop() {
+    return isNumber(this._loop)
+      ? this._loop > 0 || this._loop === Infinity
+      : this._loop === true;
   }
 
   setDuration(duration: number, forceDuration = false) {
@@ -73,25 +112,80 @@ export abstract class Flowable {
     }
 
     this._iterationDuration = maxDuration;
-    this._duration = this._endTime = maxDuration * loop;
+    this._duration = maxDuration * loop + this._loopDelay * (loop - 1);
+    this._startTime = this._delay;
+    this._endTime = this._startTime + this._duration;
   }
 
   setParent(parent: Flowable) {
     this._parent = parent;
   }
 
-  animation(factor?: number) {
-    if (!isUnd(factor)) {
-      this.render(factor || 0);
-    } else {
-      if (isUnd(this._parent)) {
-        this._parent = getContainer();
-        hold(this._parent, this);
-      }
-      Container.startAnimation(this._parent as Container);
+  protected _calculateIterationTime(
+    time: number,
+    isSeek = false,
+    fromTimeline = false,
+  ) {
+    const totalDuration = this._duration;
+    const baseStep = this._iterationDuration;
+    const loopDelay = this._loopDelay || 0;
+    const fullIterationSpan = baseStep + loopDelay;
+
+    if (totalDuration <= 0) return 0;
+
+    const fullRoundsCount = Math.floor(totalDuration / baseStep);
+    const lastRoundSize = totalDuration % baseStep;
+
+    const getRoundSize = (i: number) => {
+      if (i < fullRoundsCount) return baseStep;
+      if (i === fullRoundsCount && lastRoundSize > 0) return lastRoundSize; // just in case
+      return 0;
+    };
+
+    const totalRounds = fullRoundsCount + (lastRoundSize > 0 ? 1 : 0);
+    let iterationCount = Math.floor(time / fullIterationSpan);
+    if (iterationCount >= totalRounds) {
+      iterationCount = totalRounds - 1;
     }
 
-    return this;
+    let accumulatedTime = iterationCount * fullIterationSpan;
+    if (time < accumulatedTime && iterationCount > 0) {
+      iterationCount--;
+      accumulatedTime = iterationCount * fullIterationSpan;
+    }
+
+    const currentRoundSize = getRoundSize(iterationCount);
+    let localTimeInIteration: number = max(0, time - accumulatedTime);
+    let computedTime: number = min(localTimeInIteration, currentRoundSize);
+    let isOddIteration = false;
+
+    if (this._alternate) {
+      isOddIteration = iterationCount % 2 !== 0;
+      computedTime = isOddIteration
+        ? currentRoundSize - computedTime
+        : computedTime;
+    }
+
+    const prevIterationCount = this._previousIterationCount;
+    if (prevIterationCount !== iterationCount) {
+      this._onLoop(this);
+
+      if (fromTimeline) {
+        const iterationTime = this._isReverse
+          ? !isOddIteration
+            ? fullIterationSpan
+            : 0
+          : isOddIteration
+            ? fullIterationSpan
+            : 0;
+
+        console.log("iterationTime ", iterationTime);
+        this.render(iterationTime, isSeek, true);
+      }
+    }
+
+    this._previousIterationCount = iterationCount;
+    return computedTime;
   }
 
   init() {

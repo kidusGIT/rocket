@@ -28,10 +28,26 @@ t = animate(".ball", {
   // rotate: 180,
   scale: 0.4,
   delay: 1000,
-  // opacity: 0.5,
-  // alternate: true,
-  // loop: 1,
+  alternate: true,
+  loopDelay: 500,
+  loop: 2,
   duration: 1500,
+
+  onStart: () => {
+    console.log("Animation started");
+  },
+
+  onPause: () => {
+    console.log("Animation paused");
+  },
+
+  onFinish: () => {
+    console.log("Animation finished");
+  },
+
+  onLoop: () => {
+    console.log("Loop occurred");
+  },
 });
 
 // t = animate(".green", {

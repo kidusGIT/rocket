@@ -24,13 +24,12 @@ import {
   TransformPropertyRecord,
 } from "../core/transforms.js";
 import {
+  AnimationCallback,
   Flowable,
   FlowableParameter,
   Parent,
   TargetElement,
 } from "../flow/Flowable";
-
-export type AnimationCallback = (arg?: Flowable) => void;
 
 export type JSAnimationProps = {
   x?: number | string;
@@ -55,21 +54,14 @@ export type JSAnimationParameter = FlowableParameter & JSAnimationProps;
 
 export class JSAnimation extends Flowable {
   _progress = 0;
-  _delay = 0;
   _targets: Array<RocketTarget>;
   _init = false;
   _overwrite = true;
   _animate = false;
   _from = false;
-  _isNegative = false;
 
   _props: JSAnimationProps;
   _properties: TransformPropertyRecord = {};
-
-  _onStart: AnimationCallback;
-  _onFinish: AnimationCallback;
-  _onLoop: AnimationCallback;
-  _onPause: AnimationCallback;
 
   constructor(
     target: TargetElement,
@@ -83,6 +75,7 @@ export class JSAnimation extends Flowable {
       play,
       loop,
       alternate,
+      loopDelay,
       onFinish,
       onLoop,
       onPause,
@@ -90,12 +83,19 @@ export class JSAnimation extends Flowable {
       ...objs
     } = params;
 
-    super(parent, { duration, delay, from, play, loop, alternate });
-
-    this._onFinish = onFinish || noop;
-    this._onLoop = onLoop || noop;
-    this._onPause = onPause || noop;
-    this._onStart = onStart || noop;
+    super(parent, {
+      duration,
+      delay,
+      from,
+      play,
+      loop,
+      alternate,
+      loopDelay,
+      onFinish,
+      onLoop,
+      onPause,
+      onStart,
+    });
 
     this.setDuration(this._duration);
 
@@ -125,44 +125,30 @@ export class JSAnimation extends Flowable {
     }
   }
 
-  render(t: number, isSeek: boolean, forceAnimate = false) {
+  render(time: number, isSeek: boolean, forceAnimate = false) {
     const duration = this._duration;
     const reversing = this._isReverse;
+    const prevTime = this._time;
 
-    const time = clamp(Math.max(t - this._startTime, 0), duration, 0);
-    this._time = time;
-
-    const isBackWord = this._prevTime > time || reversing;
+    const isBackWord = prevTime > time || reversing;
 
     const elapsedProgress = invert(isBackWord, time, duration);
 
-    const isNegative = isBackWord
-      ? this._startTime - t < 0
-      : this._endTime - t < 0;
-
-    const isInTimeFrame = t >= this._startTime && t <= this._endTime;
-
-    if (!this._animating && isInTimeFrame) {
-      this._onStart(this);
+    if (!this._animating && (prevTime === 0 || prevTime === duration)) {
       this.start();
       this._animating = true;
+      this._onStart(this);
     }
 
-    const shouldRender =
-      (this._animating || isSeek) &&
-      (isInTimeFrame || this._isNegative != isNegative) &&
-      this._prevTime !== time;
+    const shouldRender = (this._animating || isSeek) && prevTime !== time;
 
-    this._isNegative = isNegative;
     if (shouldRender || forceAnimate) {
-      this._prevTime = time;
       const iterationTime = this._calculateIterationTime(time);
-
       if (!isUnd(this._head)) {
         this._renderChildren(iterationTime, isSeek, reversing);
       }
 
-      this._updateTargets(iterationTime, reversing);
+      this._updateTargets(iterationTime);
     }
 
     if (this._paused) {
@@ -171,10 +157,7 @@ export class JSAnimation extends Flowable {
     }
 
     const isCompleted =
-      elapsedProgress >= duration &&
-      this._animating &&
-      this._prevTime === time &&
-      !forceAnimate;
+      this._animating && elapsedProgress >= duration && !forceAnimate;
 
     if (isCompleted) {
       this.reset();
@@ -203,47 +186,17 @@ export class JSAnimation extends Flowable {
     }
   }
 
-  private _calculateIterationTime(time: number) {
-    const duration = this._duration;
+  private _updateTargets(iterationTime: number) {
+    const prevTime = this._iterationTime;
+    if (prevTime === iterationTime) return;
+
     const iterationDuration = this._iterationDuration;
-
-    if (isNumber(this._loop) && this._loop <= 0) return time;
-
-    const prevIterationCount = this._previousIterationCount;
-    const iterationCount = Math.floor(time / iterationDuration);
-
-    const lastIterationCount = duration / iterationDuration;
-    let computedTime = time;
-
-    if (iterationCount < lastIterationCount || this._alternate) {
-      computedTime = time % iterationDuration;
-    }
-
-    if (this._alternate) {
-      const isOddIteration = iterationCount % 2 !== 0;
-      computedTime = isOddIteration
-        ? iterationDuration - computedTime
-        : computedTime;
-    }
-
-    if (prevIterationCount !== iterationCount) {
-      this._onLoop(this);
-    }
-
-    this._previousIterationCount = iterationCount;
-
-    return computedTime;
-  }
-
-  private _updateTargets(iterationTime: number, reversing: boolean) {
-    const iterationDuration = this._iterationDuration;
+    this._iterationTime = iterationTime;
     const properties = this._properties ?? {};
 
     const progressNormalized = processProgress(
       clamp(iterationTime, iterationDuration, 0),
       iterationDuration,
-      this._delay,
-      reversing,
     );
 
     const t = this._ease(

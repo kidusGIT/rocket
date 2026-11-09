@@ -49,22 +49,10 @@ export function processElapsedProgress(
   return elapsedTime;
 }
 
-export function processProgress(
-  time: number,
-  duration: number,
-  delay: number,
-  reversing: boolean,
-) {
+export function processProgress(time: number, duration: number) {
   if (duration === 0) return 0;
-
-  if (time >= delay || reversing) {
-    duration = duration - delay;
-
-    const pr = clamp((time - delay) / duration, 1, 0);
-    return pr;
-  }
-
-  return -1;
+  const pr = clamp(time / duration, 1, 0);
+  return pr;
 }
 
 export function processElapsedTime(

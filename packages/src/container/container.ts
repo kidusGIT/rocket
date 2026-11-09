@@ -1,4 +1,4 @@
-import { clamp, isInstance, isUnd, now, round } from "../core/helpers";
+import { clamp, discard, isInstance, isUnd, now, round } from "../core/helpers";
 import { calculateFactor, startFrame } from "../core/tick";
 import { Flowable } from "../flow/Flowable";
 
@@ -42,10 +42,21 @@ export class Container {
   update(current: Flowable, factor: number) {
     let reverse = current._isReverse;
     const duration = current._duration;
-    factor = reverse ? -1 * factor : factor;
+    const currentTime = current._time;
+    factor = reverse ? -factor : factor;
 
-    const time = clamp(current._time + factor, duration, 0);
-    current.render(round(time));
+    if (current._parentTime >= current._startTime) {
+      current._startAt = current._startTime;
+      let time = clamp(currentTime + factor, duration, 0);
+      current.render(round(time));
+      current._time = time;
+    }
+
+    current._parentTime += factor;
+    if (current._parentTime < current._startAt) {
+      current._parentTime = current._startAt;
+      discard(this, current);
+    }
   }
 
   shake(factor: number) {

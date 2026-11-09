@@ -42,7 +42,7 @@ export class Container {
   update(flow: Flowable, factor: number) {
     let reverse = flow._isReverse;
     const duration = flow._duration,
-      currentTime = flow._time;
+      currentTime = flow.time;
     factor = reverse ? -factor : factor;
 
     if (flow.parentTime >= flow.startTime) {

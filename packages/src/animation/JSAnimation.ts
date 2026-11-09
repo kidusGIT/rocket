@@ -134,15 +134,21 @@ export class JSAnimation extends Flowable {
 
     const elapsedProgress = invert(isBackWord, time, duration);
 
-    if (!this._animating && (prevTime === 0 || prevTime === duration)) {
+    if (
+      !this._animating &&
+      (prevTime === 0 || prevTime === duration) &&
+      !isSeek
+    ) {
       this.start();
       this._animating = true;
       this._onStart(this);
     }
 
-    const shouldRender = (this._animating || isSeek) && prevTime !== time;
+    const inTimeframe = time >= 0 && time <= duration;
+    const shouldRender =
+      (this._animating || isSeek || inTimeframe) && prevTime !== time;
 
-    if (shouldRender || forceAnimate) {
+    if (shouldRender || forceAnimate || isSeek) {
       const iterationTime = this._calculateIterationTime(time);
       if (!isUnd(this._head)) {
         this._renderChildren(iterationTime, isSeek, reversing);
@@ -157,7 +163,10 @@ export class JSAnimation extends Flowable {
     }
 
     const isCompleted =
-      this._animating && elapsedProgress >= duration && !forceAnimate;
+      this._animating &&
+      elapsedProgress >= duration &&
+      !forceAnimate &&
+      !isSeek;
 
     if (isCompleted) {
       this.reset();

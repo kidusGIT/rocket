@@ -27,10 +27,9 @@ t = animate(".ball", {
   x: 535,
   // rotate: 180,
   scale: 0.4,
-  delay: 1000,
   alternate: true,
-  loopDelay: 500,
-  loop: 2,
+  // loopDelay: 500,
+  // loop: 2,
   duration: 1500,
 
   onStart: () => {
@@ -132,5 +131,5 @@ resume!.onclick = () => {
 };
 
 seek!.onclick = () => {
-  t.seek(500);
+  t.seek(750);
 };

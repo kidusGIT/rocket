@@ -35,57 +35,10 @@ export const invert = (isInvert: boolean, progress: number, factor = 1) =>
 export const minNumber = -10e10;
 export const maxNumber = 10e10;
 
-export function processElapsedProgress(
-  animation: Flowable,
-  reversing: boolean,
-) {
-  const elapsedTime = (animation._prevElapsedTime = calculateElapsedTime(
-    animation._prevElapsedTime,
-    animation._time,
-    animation._duration,
-    reversing,
-  ));
-
-  return elapsedTime;
-}
-
 export function processProgress(time: number, duration: number) {
   if (duration === 0) return 0;
   const pr = clamp(time / duration, 1, 0);
   return pr;
-}
-
-export function processElapsedTime(
-  prev: number,
-  current: number,
-  animation: Flowable,
-) {
-  if (
-    (animation._parent &&
-      animation._parent instanceof Flowable &&
-      animation._parent._isReverse) ||
-    animation._isReverse
-  ) {
-    if (animation._prevElapsedTime === 0) {
-      return (animation._prevElapsedTime += animation._duration);
-    }
-    return (animation._prevElapsedTime -= current - prev);
-  }
-
-  return (animation._prevElapsedTime += current - prev);
-}
-
-export function calculateElapsedTime(
-  elapsed: number,
-  factor: number,
-  duration: number,
-  reversing: boolean,
-) {
-  if (reversing) {
-    return clamp(elapsed - factor, duration, 0);
-  }
-
-  return clamp(elapsed + factor, duration, 0);
 }
 
 export function hold(parent: Parent, child: Flowable) {

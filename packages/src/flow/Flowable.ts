@@ -267,8 +267,9 @@ export abstract class Flowable {
   seek(number: number) {
     const seek = clamp(number, this._duration, 0);
     this.render(seek, true);
+    this._time = seek;
 
-    return this._paused ? this : this.resume();
+    return this._paused || !this._animating ? this : this.resume();
   }
 
   abstract render(t: number, isSeek?: boolean, forceAnimate?: boolean): void;

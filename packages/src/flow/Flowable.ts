@@ -213,7 +213,6 @@ export abstract class Flowable {
             ? fullIterationSpan
             : 0;
 
-        console.log("iterationTime ", iterationTime);
         this.render(iterationTime, isSeek, true);
       }
     }

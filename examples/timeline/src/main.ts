@@ -7,22 +7,42 @@ const resume = document.getElementById("btn-resume");
 const seek = document.getElementById("btn-seek");
 
 let t = createTimeline({
-  play: true,
-  loop: 2,
-  loopDelay: 500,
-  alternate: true,
+  // loop: 2,
+  // alternate: true,
+  // loopDelay: 500,
+  duration: 1000,
 });
 
-t.add(".green", { x: "535px", duration: 1000, scale: 0.7, rotate: 180 })
+t.add(".green", {
+  x: "535px",
+  scale: 0.7,
+  rotate: 180,
+  onStart: () => {
+    console.log("Green Started");
+  },
+  onFinish: () => {
+    console.log("Green Finished");
+  },
+})
   .add(".yellow", {
     x: 535,
-    duration: 1000,
     scale: 0.4,
-    // from: true,
-    loop: 1,
-    alternate: true,
+    onStart: (flow) => {
+      console.log("yellow Started ", flow?.time);
+    },
+    onFinish: (flow) => {
+      console.log("yellow Finished", flow?.time);
+    },
   })
-  .add(".red", { x: 535, duration: 1000 });
+  .add(".red", {
+    x: 535,
+    onStart: () => {
+      console.log("Red Started");
+    },
+    onFinish: () => {
+      console.log("Red Finished");
+    },
+  });
 
 // const b = animate(".blue", { x: 535, duration: 1500, delay: 500 });
 
@@ -65,5 +85,5 @@ resume!.onclick = () => {
 };
 
 seek!.onclick = () => {
-  t.seek(500);
+  t.seek(1500);
 };

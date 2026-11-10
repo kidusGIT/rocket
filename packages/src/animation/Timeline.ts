@@ -79,7 +79,7 @@ export class Timeline extends Flowable {
 
   render(time: number, isSeek = false, skip = false) {
     const duration = this._duration;
-    if (!this._animating) {
+    if (!this._animating && !isSeek && !skip) {
       console.log("Timeline start...");
       this._animating = true;
     }
@@ -103,9 +103,11 @@ export class Timeline extends Flowable {
 
       const time = iterationTime;
 
-      if (isSeek) {
-        current.seek(time);
-      } else {
+      // if (isSeek) {
+      //   current.seek(time);
+      // }
+
+      {
         let clampedTime = clamp(
           time - current._startTime,
           current._duration,
@@ -116,7 +118,7 @@ export class Timeline extends Flowable {
           (time <= current._endTime && time <= prevIterationTime)
         ) {
           if (clampedTime !== current._time) {
-            current.render(clampedTime, isSeek, forceAnimate);
+            current.render(clampedTime, false, forceAnimate);
             current.time = clampedTime;
           }
         }
@@ -132,7 +134,7 @@ export class Timeline extends Flowable {
 
     if (progress >= duration && this._animating && !skip) {
       this.reset();
-      console.log("Timeline end.... ", this._time, " progress: ", progress);
+      this._onFinish(this);
 
       if (this._parent instanceof Container) {
         discard(this._parent, this);

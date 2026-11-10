@@ -1,15 +1,27 @@
 {
-  "name": "packages",
+  "name": "Rocket",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "rocket",
+    "animation"
+  ],
   "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kidusGIT/rocket.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kidusGIT/rocket/issues/"
+  },
+  "authors": "Kidus Geremew",
   "license": "ISC",
   "type": "module",
+  "homepage": "https://github.com/kidusGIT/rocket#rocket",
   "devDependencies": {
     "typescript": "^7.0.2"
   }

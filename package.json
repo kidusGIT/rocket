@@ -21,5 +21,8 @@
   "homepage": "https://github.com/kidusGIT/rocket#readme",
   "devDependencies": {
     "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "Rocket": "link:packages"
   }
 }

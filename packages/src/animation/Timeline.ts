@@ -103,24 +103,14 @@ export class Timeline extends Flowable {
 
       const time = iterationTime;
 
-      // if (isSeek) {
-      //   current.seek(time);
-      // }
-
-      {
-        let clampedTime = clamp(
-          time - current._startTime,
-          current._duration,
-          0,
-        );
-        if (
-          (time >= current._startTime && time >= prevIterationTime) ||
-          (time <= current._endTime && time <= prevIterationTime)
-        ) {
-          if (clampedTime !== current._time) {
-            current.render(clampedTime, false, forceAnimate);
-            current.time = clampedTime;
-          }
+      let clampedTime = clamp(time - current._startTime, current._duration, 0);
+      if (
+        (time >= current._startTime && time >= prevIterationTime) ||
+        (time <= current._endTime && time <= prevIterationTime)
+      ) {
+        if (clampedTime !== current._time) {
+          current.render(clampedTime, false, forceAnimate);
+          current.time = clampedTime;
         }
       }
 

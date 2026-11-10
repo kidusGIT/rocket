@@ -14,7 +14,7 @@
     "noImplicitReturns": true,
     "skipLibCheck": true,
     "paths": {
-      "chibivue": ["../../packages"]
+      "rocket": ["../../packages/src"]
     }
   },
   "include": ["src"]

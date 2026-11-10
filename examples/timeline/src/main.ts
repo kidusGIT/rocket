@@ -7,8 +7,8 @@ const resume = document.getElementById("btn-resume");
 const seek = document.getElementById("btn-seek");
 
 let t = createTimeline({
-  // loop: 2,
-  // alternate: true,
+  loop: 2,
+  alternate: true,
   // loopDelay: 500,
   duration: 1000,
 });

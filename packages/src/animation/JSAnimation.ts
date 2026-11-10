@@ -38,10 +38,6 @@ export type JSAnimationProps = {
   scale?: number;
   scaleX?: number;
   scaleY?: number;
-  onStart?: AnimationCallback;
-  onFinish?: AnimationCallback;
-  onLoop?: AnimationCallback;
-  onPause?: AnimationCallback;
 } & Record<string, any>;
 
 export type keyframeProps = {
@@ -80,6 +76,7 @@ export class JSAnimation extends Flowable {
       onLoop,
       onPause,
       onStart,
+      ease,
       ...objs
     } = params;
 
@@ -91,6 +88,7 @@ export class JSAnimation extends Flowable {
       loop,
       alternate,
       loopDelay,
+      ease,
       onFinish,
       onLoop,
       onPause,
@@ -101,7 +99,6 @@ export class JSAnimation extends Flowable {
 
     this._from = !isUnd(from) && isBoolean(from) && from === true;
     this._targets = getTargets(target);
-    this._play = !play ? true : play;
 
     this._props = objs;
   }

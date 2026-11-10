@@ -12,9 +12,11 @@ import {
   noop,
 } from "../core/helpers";
 
+export type NumberString = number | string;
 export type AnimationCallback = (arg?: Flowable) => void;
 export type Parent = Flowable | Container;
 export type TargetElement = string | HTMLElement;
+export type Ease = string;
 export type FlowableParameter = {
   duration?: number;
   delay?: number;
@@ -23,6 +25,7 @@ export type FlowableParameter = {
   from?: boolean;
   play?: boolean;
   alternate?: boolean;
+  ease?: Ease;
   onFinish?: AnimationCallback;
   onLoop?: AnimationCallback;
   onPause?: AnimationCallback;
@@ -75,10 +78,12 @@ export abstract class Flowable {
       loop,
       alternate,
       loopDelay,
+      play,
       onFinish,
       onLoop,
       onPause,
       onStart,
+      ease,
     } = param;
 
     this._loop = loop || 0;
@@ -88,6 +93,7 @@ export abstract class Flowable {
     this._loopDelay = this.hasLoop ? loopDelay || 0 : 0;
     this._duration = duration ? duration : 500;
     this._iterationDuration = this._duration;
+    this._play = !play ? true : play;
 
     this._onFinish = onFinish || noop;
     this._onLoop = onLoop || noop;

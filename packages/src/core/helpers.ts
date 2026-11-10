@@ -1,4 +1,9 @@
-import { Flowable, Parent, TargetElement } from "../flow/Flowable";
+import {
+  Flowable,
+  NumberString,
+  Parent,
+  TargetElement,
+} from "../flow/Flowable";
 import { RocketTarget } from "./transforms";
 
 export const isUnd = (v: any) => typeof v === "undefined" || v === null;
@@ -39,6 +44,48 @@ export function processProgress(time: number, duration: number) {
   if (duration === 0) return 0;
   const pr = clamp(time / duration, 1, 0);
   return pr;
+}
+
+export function positionParser(input: string) {
+  const regex = /^(start|end|s|e)=(-?\d+\.?\d*)$/i;
+
+  const match = input.match(regex);
+
+  if (match) {
+    return {
+      isValid: true,
+      letter: match[1],
+      number: match[2],
+    };
+  } else {
+    return { isValid: false };
+  }
+}
+
+export function processPosition(position?: NumberString, tail?: Flowable) {
+  let pos = 0,
+    startPosition = "end";
+
+  if (!tail) {
+    return pos;
+  }
+
+  if (isNumber(position)) {
+    pos = position;
+  } else if (isString(position)) {
+    const parser = positionParser(position);
+
+    startPosition = parser.isValid ? parser.letter! : startPosition;
+    pos = parser.isValid ? parseFloat(parser.number!) : 0;
+  }
+
+  if (startPosition === "start" || startPosition == "s") {
+    pos = tail?._startTime + pos || 0;
+  } else if (startPosition === "end" || startPosition == "e") {
+    pos = tail?._endTime + pos || 0;
+  }
+
+  return pos;
 }
 
 export function hold(parent: Parent, child: Flowable) {

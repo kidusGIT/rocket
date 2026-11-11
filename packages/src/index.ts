@@ -1,1 +1,1 @@
-export { animate, createTimeline } from "./animation/index";
+export { animate, createTimeline } from "./animation";

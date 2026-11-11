@@ -9,9 +9,7 @@ import {
   lerp,
   discard,
   setTargetCache,
-  isNumber,
   isKey,
-  noop,
   isInstance,
 } from "../core/helpers";
 import type { RocketTarget } from "../core/transforms";

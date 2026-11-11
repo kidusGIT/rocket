@@ -1,4 +1,4 @@
-import { createTimeline } from "rocket";
+import { createTimeline } from "rocket-animation";
 
 const pause = document.getElementById("btn-pause");
 const reverse = document.getElementById("btn-reverse");

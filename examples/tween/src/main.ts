@@ -1,4 +1,4 @@
-import { animate } from "rocket";
+import { animate } from "rocket-animation";
 
 const pause = document.getElementById("btn-pause");
 const reverse = document.getElementById("btn-reverse");

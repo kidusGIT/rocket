@@ -3,6 +3,7 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
+    "moduleResolution": "Bundler",
     "lib": ["ESNext", "DOM"],
     "strict": true,
     "resolveJsonModule": true,
@@ -14,7 +15,8 @@
     "noImplicitReturns": true,
     "skipLibCheck": true,
     "paths": {
-      "rocket": ["../../packages/src"]
+      // "rocket-animation": ["../../packages/src/index.ts"],
+      // "rocket-animation/*": ["../../packages/src/*"]
     }
   },
   "include": ["src"]

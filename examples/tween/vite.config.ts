@@ -7,7 +7,7 @@ const dirname = path.dirname(fileURLToPath(new URL(import.meta.url)));
 export default defineConfig({
   resolve: {
     alias: {
-      rocket: path.resolve(dirname, "../../packages/src"),
+      // rocket: path.resolve(dirname, "../../packages/src"),
     },
   },
 });

@@ -9,7 +9,7 @@ const seek = document.getElementById("btn-seek");
 let t = createTimeline({
   loop: 2,
   alternate: true,
-  // loopDelay: 500,
+  // loopDelay: 500, rocket-animation
   duration: 1000,
 });
 

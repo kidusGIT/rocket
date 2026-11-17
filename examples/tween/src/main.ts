@@ -1,4 +1,4 @@
-import { animate } from "rocket-animation";
+import { animate } from "rocket";
 
 const pause = document.getElementById("btn-pause");
 const reverse = document.getElementById("btn-reverse");
@@ -25,6 +25,7 @@ let t;
 
 t = animate(".ball", {
   x: 535,
+
   // // rotate: 180,
   // scale: 0.4,
   // width: 200,

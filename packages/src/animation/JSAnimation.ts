@@ -47,11 +47,8 @@ export type keyframeProps = {
 export type JSAnimationParameter = FlowableParameter & JSAnimationProps;
 
 export class JSAnimation extends Flowable {
-  _progress = 0;
   _targets: Array<RocketTarget>;
   _init = false;
-  _overwrite = true;
-  _animate = false;
   _from = false;
 
   _props: JSAnimationProps;

@@ -7,10 +7,13 @@ const resume = document.getElementById("btn-resume");
 const seek = document.getElementById("btn-seek");
 
 let t = createTimeline({
-  loop: 2,
-  alternate: true,
+  // loop: 2,
+  // alternate: true,
   // loopDelay: 500, rocket-animation
   duration: 1000,
+  onFinish: () => {
+    console.log("Timeline Finished");
+  },
 });
 
 t.add(".green", {
@@ -24,16 +27,20 @@ t.add(".green", {
     console.log("Green Finished");
   },
 })
-  .add(".yellow", {
-    x: 535,
-    scale: 0.4,
-    onStart: (flow) => {
-      console.log("yellow Started ", flow?.time);
+  .add(
+    ".yellow",
+    {
+      x: 535,
+      scale: 0.4,
+      onStart: (flow) => {
+        console.log("yellow Started ", flow?.time);
+      },
+      onFinish: (flow) => {
+        console.log("yellow Finished", flow?.time);
+      },
     },
-    onFinish: (flow) => {
-      console.log("yellow Finished", flow?.time);
-    },
-  })
+    "s=-800",
+  )
   .add(".red", {
     x: 535,
     onStart: () => {

@@ -69,18 +69,13 @@ export class Timeline extends Flowable {
     this.addToTimeline(animation, canSeek ? 0 : pos);
 
     this.init();
-
-    if (canSeek) {
-      animation.seek(Math.abs(pos));
-    }
-
     return this;
   }
 
   render(time: number, isSeek = false, skip = false) {
     const duration = this._duration;
     if (!this._animating && !isSeek && !skip) {
-      console.log("Timeline start...");
+      this._onStart(this);
       this._animating = true;
     }
 
@@ -109,6 +104,7 @@ export class Timeline extends Flowable {
         (time <= current._endTime && time <= prevIterationTime)
       ) {
         if (clampedTime !== current._time) {
+          console.log("id ", current._id);
           current.render(clampedTime, false, forceAnimate);
           current.time = clampedTime;
         }

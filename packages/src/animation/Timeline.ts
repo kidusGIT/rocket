@@ -104,7 +104,6 @@ export class Timeline extends Flowable {
         (time <= current._endTime && time <= prevIterationTime)
       ) {
         if (clampedTime !== current._time) {
-          console.log("id ", current._id);
           current.render(clampedTime, false, forceAnimate);
           current.time = clampedTime;
         }

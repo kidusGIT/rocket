@@ -135,7 +135,7 @@ export abstract class Flowable {
     this._time = time;
   }
 
-  setDuration(duration: number, forceDuration = false) {
+  protected setDuration(duration: number, forceDuration = false) {
     const maxDuration = forceDuration
       ? duration
       : max(duration, this._iterationDuration);

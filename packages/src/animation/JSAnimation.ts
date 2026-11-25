@@ -122,7 +122,8 @@ export class JSAnimation extends Flowable {
     const reversing = this._isReverse;
     const prevTime = this._time;
 
-    const isBackWord = prevTime > time || reversing;
+    // const isBackWord = prevTime > time || reversing;
+    const isBackWord = reversing;
 
     const elapsedProgress = invert(isBackWord, time, duration);
 

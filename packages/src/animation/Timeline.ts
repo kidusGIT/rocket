@@ -103,6 +103,9 @@ export class Timeline extends Flowable {
         (time >= current._startTime && time >= prevIterationTime) ||
         (time <= current._endTime && time <= prevIterationTime)
       ) {
+        const isSeekTrue =
+          isSeek && time >= current._startTime && time <= current._endTime;
+
         if (clampedTime !== current._time) {
           current.render(clampedTime, false, forceAnimate);
           current.time = clampedTime;

@@ -273,6 +273,7 @@ export abstract class Flowable {
     const seek = clamp(number, this._duration, 0);
     this.render(seek, true);
     this._time = seek;
+    this.parentTime = clamp(this.startAt + seek, this._endTime, this.startAt);
 
     return this._paused || !this._animating ? this : this.resume();
   }

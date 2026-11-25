@@ -47,6 +47,7 @@ export class Container {
 
     if (flow.parentTime >= flow.startTime) {
       flow.startAt = flow.startTime;
+
       let time = clamp(currentTime + factor, duration, 0);
       flow.render(round(time));
       flow.time = time;
